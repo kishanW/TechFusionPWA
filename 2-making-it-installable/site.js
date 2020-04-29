@@ -6,117 +6,39 @@ var pwaApp = {
   serviceWorkerRegistration: undefined,
 
   RegisterServiceWorker: function () {
+    pwaApp.AddMessage("light", "Installation starting");
+
     if ("serviceWorker" in navigator && "PushManager" in window) {
+      pwaApp.AddMessage("light", "service worker supported");
+
       navigator.serviceWorker
         .register("/serviceworker.js")
         .then(function (swReg) {
           pwaApp.serviceWorkerRegistration = swReg;
-          swReg.pushManager.getSubscription().then(function (subscription) {
-            var isSubscribed = !(subscription === null);
-            pwaApp.isSubScribedToPush = isSubscribed;
-
-            $("#togglePushSubscription").text(
-              isSubscribed
-                ? "Unsubscribe from notifications"
-                : "Subscribe to notifications"
-            );
-          });
+          console.log(
+            "[site.js] service worker installed",
+            pwaApp.serviceWorkerRegistration
+          );
+          pwaApp.AddMessage(
+            "success",
+            "Installation complete. Open up browser dev tools/ debugger to see more info."
+          );
         })
         .catch(function (registerSwError) {
           console.error(
             "[site.js] Service worker error - unable to register",
             registerSwError
           );
+          pwaApp.AddMessage(
+            "danger",
+            "Installation failed. Please see the console logging"
+          );
         });
     } else {
       console.error("[site.js] Push messaging is not supported");
+      pwaApp.AddMessage("danger", "Service worker is not supported");
     }
   },
-
-  GetUserPermissionToSubscribe: function () {
-    var getUserPermissionPromise = new Promise(function (resolve, reject) {
-      pwaApp._notificationPermissionResult = Notification.requestPermission(
-        function (result) {
-          resolve(result);
-        }
-      );
-
-      if (pwaApp._notificationPermissionResult) {
-        pwaApp._notificationPermissionResult.then(resolve, reject);
-      }
-    }).then(function (permissionResult) {
-      if (permissionResult !== "granted") {
-        throw new Error("We weren't granted permission.");
-      }
-    });
-
-    return getUserPermissionPromise;
-  },
-
-  SubscribeToPushNotifications: function () {
-    //check to see if we have a service worker installed
-    if (!pwaApp.serviceWorkerRegistration) {
-      throw new Error("A service worker must be installed");
-    }
-
-    pwaApp.serviceWorkerRegistration.pushManager
-      .subscribe({
-        userVisibleOnly: true, //https://developers.google.com/web/fundamentals/push-notifications/subscribing-a-user#uservisibleonly_options
-        //fix this
-        applicationServerKey: pwaApp._urlB64ToUint8Array(
-          pwaApp._appServerPublicKey
-        ),
-      })
-      .then(function (subscription) {
-        //code to send the subscription to the server
-        localStorage.setItem(
-          "webPushSubscription",
-          JSON.stringify(subscription)
-        );
-
-        //update flag
-        pwaApp.isSubScribedToPush = true;
-
-        //update button text
-        $("#togglePushSubscription").text("Unsubscribe from notifications");
-      })
-      .catch(function (subscribeToPushError) {
-        console.error(
-          "[site.js] Failed to subscribe the user: ",
-          subscribeToPushError
-        );
-        //update button here -- if needed
-      });
-  },
-
-  UnsubscribeFromPushNotifications: function () {
-    pwaApp.serviceWorkerRegistration.pushManager
-      .getSubscription()
-      .then(function (subscription) {
-        if (subscription) {
-          return subscription.unsubscribe();
-        }
-        return undefined;
-      })
-      .then(function () {
-        console.log("[site.js] unsubscribed from push notifications");
-
-        //remove local storage values
-        localStorage.removeItem("webPushSubscription");
-
-        //tell server to delete the subscription from the server
-
-        //update flags
-        pwaApp.isSubScribedToPush = false;
-
-        //update button
-        $("#togglePushSubscription").text("Subscribe to push notification");
-      })
-      .catch(function (unsubscribeFromPushError) {
-        console.log("[site.js] Error unsubscribing", unsubscribeFromPushError);
-      });
-  },
-
   _urlB64ToUint8Array: function (base64String) {
     var padding = "=".repeat((4 - (base64String.length % 4)) % 4);
     var base64 = (base64String + padding)
@@ -131,27 +53,26 @@ var pwaApp = {
     }
     return outputArray;
   },
+
+  AddMessage: function (messageType, message) {
+    var messageListElem = $("#serviceWorkerInstallMessages");
+    messageListElem.append(
+      "<li class='list-group-item list-group-item-" +
+        messageType +
+        "'>" +
+        message +
+        "</li>"
+    );
+  },
 };
 
 $(document).ready(function () {
   pwaApp.RegisterServiceWorker();
 });
 
-$(document).on("click", "#togglePushSubscription", function (e) {
-  e.preventDefault();
-
-  if (
-    pwaApp.isSubScribedToPush &&
-    confirm("Do you really want to unsubscribe?")
-  ) {
-    pwaApp.UnsubscribeFromPushNotifications();
-  } else {
-    pwaApp.GetUserPermissionToSubscribe();
-    pwaApp.SubscribeToPushNotifications();
-  }
-});
-
 //CODE FOR APP INSTALLATION
+//https://web.dev/customize-install/
+
 let deferredPrompt;
 const addBtn = document.querySelector("#installButton");
 addBtn.style.display = "none";
@@ -179,4 +100,9 @@ window.addEventListener("beforeinstallprompt", (e) => {
       deferredPrompt = null;
     });
   });
+});
+
+window.addEventListener("appinstalled", (evt) => {
+  console.log("a2hs installed", evt);
+  pwaApp.AddMessage("success", "App intall event - app successfully installed");
 });
