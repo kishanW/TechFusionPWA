@@ -3,15 +3,10 @@ var pwaApp = {
   serviceWorkerRegistration: undefined,
 
   RegisterServiceWorker: function () {
-    var messageListElem = $("#serviceWorkerInstallMessages");
-    messageListElem.append(
-      "<li class='list-group-item list-group-item-light'>Installation starting</li>"
-    );
+    pwaApp.AddMessage("light", "Installation starting");
 
     if ("serviceWorker" in navigator && "PushManager" in window) {
-      messageListElem.append(
-        "<li class='list-group-item list-group-item-light'>service worker supported</li>"
-      );
+      pwaApp.AddMessage("light", "service worker supported");
 
       navigator.serviceWorker
         .register("/serviceworker.js")
@@ -21,8 +16,9 @@ var pwaApp = {
             "[site.js] service worker installed",
             pwaApp.serviceWorkerRegistration
           );
-          messageListElem.append(
-            "<li class='list-group-item list-group-item-success'>Installation complete. Open up browser dev tools/ debugger to see more info.</li>"
+          pwaApp.AddMessage(
+            "success",
+            "Installation complete. Open up browser dev tools/ debugger to see more info."
           );
         })
         .catch(function (registerSwError) {
@@ -30,16 +26,25 @@ var pwaApp = {
             "[site.js] Service worker error - unable to register",
             registerSwError
           );
-          messageListElem.append(
-            "<li class='list-group-item list-group-item-danger'>Installation failed. Please see the console logging</li>"
+          pwaApp.AddMessage(
+            "danger",
+            "Installation failed. Please see the console logging"
           );
         });
     } else {
       console.error("[site.js] Push messaging is not supported");
-      messageListElem.append(
-        "<li class='list-group-item list-group-item-danger'>Service worker is not supported</li>"
-      );
+      pwaApp.AddMessage("danger", "Service worker is not supported");
     }
+  },
+  AddMessage: function (messageType, message) {
+    var messageListElem = $("#serviceWorkerInstallMessages");
+    messageListElem.append(
+      "<li class='list-group-item list-group-item-" +
+        messageType +
+        "'>" +
+        message +
+        "</li>"
+    );
   },
 };
 
