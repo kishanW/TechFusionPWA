@@ -1,0 +1,30 @@
+{
+	"short_name": "TechFusion PWA",
+	"name": "TechFusion PWA Demo",
+	"description": "This is the TechFusion PWA demo application.",
+	"icons": [
+		{
+			"src": "fusion-logo-transparent-400.png",
+			"type": "image/png",
+			"sizes": "400x400",
+			"purpose": "any maskable"
+		},
+		{
+			"src": "fusion-logo-transparent-200.png",
+			"type": "image/png",
+			"sizes": "200x200",
+			"purpose": "any maskable"
+		},
+		{
+			"src": "fusion-logo-transparent-100.png",
+			"type": "image/png",
+			"sizes": "100x100",
+			"purpose": "any maskable"
+		}
+	],
+	"start_url": "/",
+	"background_color": "#eff6fa",
+	"display": "fullscreen",
+	"scope": "/",
+	"theme_color": "#eff6fa"
+}
