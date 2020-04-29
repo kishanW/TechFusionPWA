@@ -1,7 +1,7 @@
 var pwaApp = {
   //https://web-push-codelab.glitch.me/
-  _appServerPublicKey:
-    "BJvVmATX5GfhjxnWWgy0RR4BsLB0qA-DnRasUiDvDbdgngMaxeV8lpoCdAahwcQbHltdjgku55Kukd02QM5jYoE",
+  _appServerPublicKey: "",
+  //"BJvVmATX5GfhjxnWWgy0RR4BsLB0qA-DnRasUiDvDbdgngMaxeV8lpoCdAahwcQbHltdjgku55Kukd02QM5jYoE",
   isSubScribedToPush: false,
   serviceWorkerRegistration: undefined,
 
@@ -20,6 +20,10 @@ var pwaApp = {
                 ? "Unsubscribe from notifications"
                 : "Subscribe to notifications"
             );
+
+            if (isSubscribed) {
+              $("#pushSubscriptionTextArea").val(JSON.stringify(subscription));
+            }
           });
         })
         .catch(function (registerSwError) {
@@ -74,6 +78,8 @@ var pwaApp = {
           JSON.stringify(subscription)
         );
 
+        $("#pushSubscriptionTextArea").val(JSON.stringify(subscription));
+
         //update flag
         pwaApp.isSubScribedToPush = true;
 
@@ -103,6 +109,7 @@ var pwaApp = {
 
         //remove local storage values
         localStorage.removeItem("webPushSubscription");
+        $("#pushSubscriptionTextArea").val("");
 
         //tell server to delete the subscription from the server
 
@@ -131,10 +138,40 @@ var pwaApp = {
     }
     return outputArray;
   },
+
+  UpdateButtons: function () {
+    //update buttons
+    $("#appserverpubkeyready").toggleClass(
+      "d-none",
+      !pwaApp._appServerPublicKey
+    );
+    $("#togglePushSubscription").attr(
+      "disabled",
+      pwaApp._appServerPublicKey ? null : "disabled"
+    );
+  },
 };
 
 $(document).ready(function () {
+  //try to populate app server key
+  pwaApp._appServerPublicKey = localStorage.getItem("appServerPublicKey");
+
+  //updaye ui after trying to load the app server key from local storage
+  $("#appserverpubkey").val(pwaApp._appServerPublicKey);
+  pwaApp.UpdateButtons();
+
+  //register service worker
   pwaApp.RegisterServiceWorker();
+});
+
+$(document).on("change", "#appserverpubkey", function (e) {
+  //save the app server key in memory and to local storage
+  var appServerPubKey = $(this).val();
+  pwaApp._appServerPublicKey = appServerPubKey.trim();
+  localStorage.setItem("appServerPublicKey", pwaApp._appServerPublicKey);
+
+  //update buttons
+  pwaApp.UpdateButtons();
 });
 
 $(document).on("click", "#togglePushSubscription", function (e) {
