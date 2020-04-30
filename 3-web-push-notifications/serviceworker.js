@@ -105,6 +105,7 @@ function precache() {
       "./libraries/bootstrap.min.js",
       "./libraries/popper.min.js",
       "./index.htm",
+      "/",
       "./fa-logo-w-wide.png",
       "./site.js",
       "./site.webmanifest.json",
