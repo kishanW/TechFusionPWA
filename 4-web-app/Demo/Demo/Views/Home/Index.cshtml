@@ -1,0 +1,218 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+	    <h1 class="display-4">TechFusion PWA Demo</h1>
+    </div>
+</div>
+
+<div class="row" id="vueApp">
+    
+    <div class="col-lg-3">
+        
+		<p>
+            Hey do you want to subscribe to notifications? 
+		</p>
+        
+		<button class="btn btn-primary" v-on:click="SubscribeButtonClicked">
+			{{subscribeButtonText}}
+		</button>
+    </div>
+
+</div>
+
+<!--Vue JS/ Axios-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17/vue.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+<script>
+	var vueApp = new Vue({
+		el: "#vueApp",
+		data: {
+			appServerKey: 'BB5sxuDVXkbLDln5Ap-4TUdZq7ZH-MWUyGG2Ofb27H4tp5nJ_kq8mO83lvkShLAtIVe3uuE759bcPms8OsyN9tA',
+			isSubscribed: false,
+			subscribeUrl: '@Url.Action("Subscribe")',
+			unsubscribeUrl: '@Url.Action("UnSubscribe")',
+			_serviceWorkerRegistration: ''
+		},
+		computed: {
+			subscribeButtonText()
+			{
+				return this.isSubscribed ? "Unsubscribe" : "Subscribe";
+			}
+		},
+		methods: {
+			GetApplicationServerKey()
+			{
+				var appServerKey = this.appServerKey;
+				var padding = "=".repeat((4 - (appServerKey.length % 4)) % 4);
+				var base64 = (appServerKey + padding)
+					.replace(/\-/g, "+")
+					.replace(/_/g, "/");
+
+				var rawData = window.atob(base64);
+				var outputArray = new Uint8Array(rawData.length);
+
+				for (var i = 0; i < rawData.length; ++i)
+				{
+					outputArray[i] = rawData.charCodeAt(i);
+				}
+				return outputArray;
+			},
+
+			UpdateIsSubscribedFlag(newVal)
+			{
+				this.isSubscribed = newVal === true;
+			},
+			SubscribeButtonClicked()
+			{
+				this.isSubscribed ? this.Unsubscribe() : this.Subscribe();
+			},
+			Subscribe()
+			{
+				//get user permission
+				this.GetUserPermissionToSubscribe();
+
+				//ask to subscribe - sending to server is done here as well
+				this.SubscribeToPushNotifications();
+
+			},
+			Unsubscribe()
+			{
+				var updateIsSubscribedFlagMethod = this.UpdateIsSubscribedFlag;
+
+				//remove local subscription
+				this._serviceWorkerRegistration.pushManager
+					.getSubscription()
+					.then(function (subscription) {
+						if (subscription) {
+							return subscription.unsubscribe();
+						}
+						return undefined;
+					})
+					.then(function () {
+						console.log("[site.js] locally unsubscribed from push notifications");
+						localStorage.removeItem("push-subscription");
+						updateIsSubscribedFlagMethod(false);
+					})
+					.catch(function (unsubscribeFromPushError) {
+						console.log("[site.js] Error unsubscribing", unsubscribeFromPushError);
+					});
+
+				var data = {
+					endPoint: '',
+					p256dH: '',
+					auth: ''
+				};
+				axios.post(this.unsubscribeUrl, data)
+					.then(function () {
+						console.log("subscription deletion request sent to server");
+					});
+			},
+			
+			SaveServiceWorkerRegistration(swReg)
+			{
+				this._serviceWorkerRegistration = swReg;
+
+				var updateIsSubscribedFlagMethod = this.UpdateIsSubscribedFlag;
+				swReg.pushManager.getSubscription()
+					.then(function(subscription) {
+						updateIsSubscribedFlagMethod(subscription !== null);
+						window.localStorage.setItem("push-subscription", subscription);
+					});
+			},
+
+			RegisterServiceWorker()
+			{
+				var saveServiceWorkerRegistrationMethod = this.SaveServiceWorkerRegistration;
+
+				if ("serviceWorker" in navigator && "PushManager" in window) {
+					navigator.serviceWorker
+						.register("serviceworker.js")
+						.then(function (swReg) {
+							saveServiceWorkerRegistrationMethod(swReg);
+						})
+						.catch(function (registerSwError) {
+							console.error(
+								"[site.js] Service worker error - unable to register",
+								registerSwError
+							);
+						});
+				} else {
+					console.error("[site.js] Push messaging is not supported");
+				}
+			},
+
+			GetUserPermissionToSubscribe()
+			{
+				var permissionResult = null;
+				var getUserPermissionPromise = new Promise(function (resolve, reject) {
+					permissionResult = Notification.requestPermission(
+						function (result) {
+							resolve(result);
+						}
+					);
+
+					if (permissionResult) {
+						permissionResult.then(resolve, reject);
+					}
+				}).then(function (permissionResult) {
+					if (permissionResult !== "granted") {
+						throw new Error("We weren't granted permission.");
+					}
+				});
+
+				return getUserPermissionPromise;
+			},
+
+			SubscribeToPushNotifications()
+			{
+				//check to see if we have a service worker installed
+				if (!this._serviceWorkerRegistration) {
+					throw new Error("A service worker must be installed");
+				}
+
+				var appServerKey = this.GetApplicationServerKey();
+				var updateIsSubscribedFlagMethod = this.UpdateIsSubscribedFlag;
+				var subscribeServerUrl = this.subscribeUrl;
+				
+				this._serviceWorkerRegistration.pushManager
+					.subscribe({
+						userVisibleOnly: true, //https://developers.google.com/web/fundamentals/push-notifications/subscribing-a-user#uservisibleonly_options
+						applicationServerKey: appServerKey
+					})
+					.then(function (subscription) {
+						//saving locally and updating flags
+						localStorage.setItem("push-subscription", JSON.stringify(subscription));
+						updateIsSubscribedFlagMethod(true);
+					})
+				.then(function() {
+					var subscription = JSON.parse(localStorage.getItem("push-subscription"));
+
+					//sending data to server
+					var data = {
+						endPoint: subscription.endpoint,
+						p256dH: subscription.keys.p256dh,
+						auth: subscription.keys.auth
+					};
+					axios.post(subscribeServerUrl, data)
+						.then(function ()
+						{
+							console.log("push subscription save request sent to server");
+						});
+					})
+					.catch(function (subscribeToPushError) {
+						console.error("[site.js] Failed to subscribe the user: ", subscribeToPushError);
+					});
+			},
+
+		}
+	});
+	Vue.config.devtools = true;
+	window.vueApp = vueApp;
+
+	$(document).ready(function() {
+		window.vueApp.RegisterServiceWorker();
+	});
+</script>
