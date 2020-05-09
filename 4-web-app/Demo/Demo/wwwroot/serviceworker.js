@@ -8,7 +8,7 @@ self.addEventListener("install", function (event) {
   console.log("[Service Worker] install event: ", event);
 
   console.log("[service worker] precaching assets on install");
-//  event.waitUntil(precache());
+  event.waitUntil(precache());
 
   self.skipWaiting();
 });
@@ -68,7 +68,6 @@ self.addEventListener("notificationclick", function (event) {
 });
 
 //not-so offline support to enable the minimum requirements for this app to be a PWA
-/*
 
 self.addEventListener("fetch", function (event) {
   console.log("[Service Worker] fetch event fired", event);
@@ -101,18 +100,18 @@ var cacheName = "techFusionPwaCache";
 function precache() {
   return caches.open(cacheName).then(function (cache) {
     return cache.addAll([
-      "./libraries/jquery-3.4.1.slim.min.js",
-      "./libraries/bootstap.min.css",
-      "./libraries/bootstrap.min.js",
-      "./libraries/popper.min.js",
-      "./index.htm",
+      "lib/jquery/dist/jquery.js",
+      "lib/bootstrap/dist/js/bootstrap.bundle.js",
+      "lib/bootstrap/dist/css/bootstrap.css",
+      "js/vue.js",
+      "js/axios.js",
+      "js/site.js",
       "/",
-      "./fa-logo-w-wide.png",
-      "./site.js",
-      "./site.webmanifest.json",
-      "./fa-logo_w_bg.png",
-      "./fusion-logo-transparent-200.png",
-      "./offline-image.png",
+      "fa-logo-w-wide.png",
+      "site.webmanifest.json",
+      "fa-logo_w_bg.png",
+      "fusion-logo-transparent-200.png",
+      "offline-image.png"
     ]);
   });
 }
@@ -132,4 +131,3 @@ function fromCache(request) {
     });
   });
 }
-*/
