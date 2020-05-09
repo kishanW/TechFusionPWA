@@ -6,6 +6,7 @@ using Demo.Entities;
 using Demo.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebPush;
 
 namespace Demo.Controllers
 {
@@ -62,8 +63,31 @@ namespace Demo.Controllers
 			return Ok();
 		}
 
-		public IActionResult SendMessage()
+		public IActionResult SuperAwesomePage()
 		{
+			return View();
+		}
+		
+		[HttpPost]
+		public IActionResult SendMessage([FromBody] SendMessageModel sendMessageModel)
+		{
+			var webPushOptions = GetWebPushOptions();
+			var webPushClient = new WebPushClient();
+
+			var savedSubscriptions = _context.WebPushSubscriptions.ToList();
+			foreach (var savedSubscription in savedSubscriptions)
+			{
+				try
+				{
+					var webPushSubscription = new PushSubscription(savedSubscription.EndPoint, savedSubscription.P256dH, savedSubscription.Auth);
+					webPushClient.SendNotification(webPushSubscription, sendMessageModel.Message, webPushOptions);
+				}
+				catch (WebPushException ex)
+				{
+					var sss = 1;
+					//figure out what to do here -- delete from server? 
+				}
+			}
 			return Ok();
 		}
 
@@ -71,6 +95,28 @@ namespace Demo.Controllers
 		{
 			var subscription = _context.WebPushSubscriptions.FirstOrDefault(x => x.Auth == auth && x.P256dH == p256dH && x.EndPoint == endPoint);
 			return subscription;
+		}
+
+		private Dictionary<string, object> GetWebPushOptions()
+		{
+			var subject = "mailto:kishanw@live.com";
+			var publicKey = "BPXeq_JIEnkyFB2e53_X4DTA7swWEDUu7s-OHgQNZG06ubdJaUlqolAbN4ZxAxbm5rwrO9jw2LqXDDDZWINwfh4";
+			var privateKey = "IYsJsEcYd47f-PU9TIjd_4wIkZwNaRBzfVEKeeI8QHo";
+			var vapidDetails = new VapidDetails(subject, publicKey, privateKey);
+
+			var options = new Dictionary<string, object>
+			              {
+				              ["vapidDetails"] = vapidDetails,
+				              ["TTL"] = 3600
+			              };
+
+			return options;
+		}
+
+		public IActionResult GenerateVapidKeys()
+		{
+			var vapidKeys = VapidHelper.GenerateVapidKeys();
+			return Ok(vapidKeys);
 		}
 	}
 }

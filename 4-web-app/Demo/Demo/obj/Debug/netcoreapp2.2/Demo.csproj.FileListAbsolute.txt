@@ -8,7 +8,6 @@ C:\Users\kwanigasinghe\Documents\GitHub\TechFusionPWA\4-web-app\Demo\Demo\bin\De
 C:\Users\kwanigasinghe\Documents\GitHub\TechFusionPWA\4-web-app\Demo\Demo\bin\Debug\netcoreapp2.2\Demo.pdb
 C:\Users\kwanigasinghe\Documents\GitHub\TechFusionPWA\4-web-app\Demo\Demo\bin\Debug\netcoreapp2.2\Demo.Views.dll
 C:\Users\kwanigasinghe\Documents\GitHub\TechFusionPWA\4-web-app\Demo\Demo\bin\Debug\netcoreapp2.2\Demo.Views.pdb
-C:\Users\kwanigasinghe\Documents\GitHub\TechFusionPWA\4-web-app\Demo\Demo\obj\Debug\netcoreapp2.2\Demo.csproj.CoreCompileInputs.cache
 C:\Users\kwanigasinghe\Documents\GitHub\TechFusionPWA\4-web-app\Demo\Demo\obj\Debug\netcoreapp2.2\Demo.RazorAssemblyInfo.cache
 C:\Users\kwanigasinghe\Documents\GitHub\TechFusionPWA\4-web-app\Demo\Demo\obj\Debug\netcoreapp2.2\Demo.RazorAssemblyInfo.cs
 C:\Users\kwanigasinghe\Documents\GitHub\TechFusionPWA\4-web-app\Demo\Demo\obj\Debug\netcoreapp2.2\Demo.AssemblyInfoInputs.cache
@@ -31,4 +30,5 @@ C:\Users\kwanigasinghe\Documents\GitHub\TechFusionPWA\4-web-app\Demo\Demo\obj\De
 C:\Users\kwanigasinghe\Documents\GitHub\TechFusionPWA\4-web-app\Demo\Demo\obj\Debug\netcoreapp2.2\Demo.pdb
 C:\Users\kwanigasinghe\Documents\GitHub\TechFusionPWA\4-web-app\Demo\Demo\obj\Debug\netcoreapp2.2\Demo.genruntimeconfig.cache
 C:\Users\kwanigasinghe\Documents\GitHub\TechFusionPWA\4-web-app\Demo\Demo\obj\Debug\netcoreapp2.2\Demo.csproj.CopyComplete
-C:\Users\kwanigasinghe\Documents\GitHub\TechFusionPWA\4-web-app\Demo\Demo\obj\Debug\netcoreapp2.2\Demo.csprojAssemblyReference.cache
+C:\Users\kwanigasinghe\Documents\GitHub\TechFusionPWA\4-web-app\Demo\Demo\obj\Debug\netcoreapp2.2\Razor\Views\Home\SuperAwesomePage.cshtml.g.cs
+C:\Users\kwanigasinghe\Documents\GitHub\TechFusionPWA\4-web-app\Demo\Demo\obj\Debug\netcoreapp2.2\Demo.csproj.CoreCompileInputs.cache

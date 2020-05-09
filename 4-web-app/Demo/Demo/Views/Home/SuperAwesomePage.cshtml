@@ -1,0 +1,63 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+	    <h1 class="display-4">TechFusion PWA Demo</h1>
+    </div>
+</div>
+
+<div class="row" id="vueApp">
+    
+    <div class="col-lg-3">
+        
+		<p>
+            Type something to send out as a push notification...
+		</p>
+        
+		<input type="text" name="myMessage" placeholder="your message" class="form-control" v-model="myMessage"/>
+
+		<button class="btn btn-primary" v-on:click="SendPushMessage">
+			Send
+		</button>
+    </div>
+
+</div>
+
+<!--Vue JS/ Axios-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17/vue.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+<script>
+	var vueApp = new Vue({
+		el: "#vueApp",
+		data: {
+			myMessage: '',
+			sendMessageUrl: '@Url.Action("SendMessage")'
+		},
+		computed: {
+			
+		},
+		methods: {
+			SendPushMessage()
+			{
+				var sendMessageServerUrl = this.sendMessageUrl;
+				var message = this.myMessage;
+				axios.post(sendMessageServerUrl,
+						{
+							message: message
+						})
+					.then(function ()
+					{
+						console.log("message sent");
+					});
+			}
+		}
+	});
+	Vue.config.devtools = true;
+	window.vueApp = vueApp;
+
+	$(document).ready(function() {
+		window.vueApp.RegisterServiceWorker();
+	});
+</script>
