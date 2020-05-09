@@ -32,3 +32,4 @@ C:\Users\kwanigasinghe\Documents\GitHub\TechFusionPWA\4-web-app\Demo\Demo\obj\De
 C:\Users\kwanigasinghe\Documents\GitHub\TechFusionPWA\4-web-app\Demo\Demo\obj\Debug\netcoreapp2.2\Demo.csproj.CopyComplete
 C:\Users\kwanigasinghe\Documents\GitHub\TechFusionPWA\4-web-app\Demo\Demo\obj\Debug\netcoreapp2.2\Razor\Views\Home\SuperAwesomePage.cshtml.g.cs
 C:\Users\kwanigasinghe\Documents\GitHub\TechFusionPWA\4-web-app\Demo\Demo\obj\Debug\netcoreapp2.2\Demo.csproj.CoreCompileInputs.cache
+C:\Users\kwanigasinghe\Documents\GitHub\TechFusionPWA\4-web-app\Demo\Demo\obj\Debug\netcoreapp2.2\Demo.csprojAssemblyReference.cache
