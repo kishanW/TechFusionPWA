@@ -61,7 +61,7 @@ self.addEventListener("notificationclick", function (event) {
     "| custom data: ",
     customData
   );
-  clients.openWindow("/");
+  clients.openWindow("/?isNotificationClick=true");
 
   //close the notification
   event.notification.close();

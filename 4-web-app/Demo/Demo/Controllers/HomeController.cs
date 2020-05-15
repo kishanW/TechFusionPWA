@@ -19,8 +19,9 @@ namespace Demo.Controllers
 			_context = context;
 		}
 
-		public IActionResult Index()
+		public IActionResult Index(bool isNotificationClick = false)
 		{
+			ViewData["CustomMessage"] = isNotificationClick ? "Hey You made it!!!" : "";
 			return View();
 		}
 
